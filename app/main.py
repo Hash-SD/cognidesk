@@ -365,24 +365,24 @@ def inject_custom_css():
 def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
-        # Logo Header
-        st.title("🧠 CogniDesk")
+        # Logo Header - Besar
+        st.markdown("# 🧠 CogniDesk")
         st.caption("AI Stationery Detector")
         
         st.divider()
         
         # Panduan Section
-        st.subheader("📖 Panduan Input")
+        st.subheader("Panduan Input")
         
         with st.expander("Cara Mendapatkan Hasil Terbaik", expanded=False):
             st.markdown("""
-            **📸 Tips Foto:**
+            **Tips Foto:**
             - Gunakan pencahayaan yang cukup
             - Pastikan objek tidak blur
             - Gunakan background polos
             - Posisikan objek di tengah frame
             
-            **📁 Format File:**
+            **Format File:**
             - JPG, JPEG, atau PNG
             - Maksimal ukuran 5MB
             - Satu objek per gambar
@@ -390,27 +390,23 @@ def render_sidebar():
         
         st.divider()
         
-        # Kategori yang Didukung
-        st.subheader("🏷️ Kategori Didukung")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.write("🧹")
-            st.caption("Eraser")
-        with col2:
-            st.write("📄")
-            st.caption("Kertas")
-        with col3:
-            st.write("✏️")
-            st.caption("Pensil")
+        # Kategori yang Didukung - tanpa emoji, hanya bullet points
+        st.subheader("Kategori Didukung")
+        st.markdown("""
+        - Eraser (Penghapus)
+        - Kertas (Paper)
+        - Pensil (Pencil)
+        """)
         
         st.divider()
         
-        # Tim Pengembang
-        st.subheader("👥 Tim Pengembang")
-        st.write("👤 Izza")
-        st.write("👤 Haikal")
-        st.write("👤 Hermawan")
+        # Tim Pengembang - tanpa emoji, hanya bullet points
+        st.subheader("Tim Pengembang")
+        st.markdown("""
+        - Izza
+        - Haikal
+        - Hermawan
+        """)
         
         st.divider()
         
@@ -425,13 +421,9 @@ def get_prediction_engine():
 
 
 def render_main_header():
-    """Render main content header."""
-    st.markdown("""
-    <div class="main-header">
-        <h1 class="main-title">Identifikasi Alat Tulis Anda</h1>
-        <p class="main-subtitle">Upload gambar atau ambil foto untuk mendeteksi jenis alat tulis</p>
-    </div>
-    """, unsafe_allow_html=True)
+    """Render main content header - rata kiri."""
+    st.title("Identifikasi Alat Tulis Anda")
+    st.caption("Upload gambar atau ambil foto untuk mendeteksi jenis alat tulis")
 
 
 def get_emoji_for_class(class_name: str) -> str:
@@ -453,117 +445,168 @@ def render_analysis_result(result):
     """Render analysis result using native Streamlit components."""
     emoji = get_emoji_for_class(result.predicted_class)
     
-    # Main emoji
-    st.markdown(f"<div style='text-align:center; font-size:4rem;'>{emoji}</div>", unsafe_allow_html=True)
+    # Main emoji - centered
+    st.markdown(f"<div style='text-align:center; font-size:3.5rem; padding:1rem 0;'>{emoji}</div>", unsafe_allow_html=True)
     
     # Result label
     if result.percentage >= 50:
-        st.success(f"🎯 **{result.predicted_class.upper()}** DETECTED")
+        st.success(f"**{result.predicted_class.upper()}** DETECTED")
     else:
-        st.warning(f"🤔 **{result.predicted_class.upper()}** DETECTED")
+        st.warning(f"**{result.predicted_class.upper()}** DETECTED")
     
     # Confidence display
-    col_label, col_value = st.columns([2, 1])
-    with col_label:
-        st.write("**Confidence Level:**")
-    with col_value:
-        st.write(f"**{result.percentage:.1f}%**")
-    
+    st.write(f"**Confidence:** {result.percentage:.1f}%")
     st.progress(result.confidence)
     
     st.divider()
     
     # All predictions with progress bars
-    st.write("**📊 All Predictions:**")
+    st.write("**All Predictions:**")
     
     for pred in result.top_predictions:
-        pred_emoji = get_emoji_for_class(pred["class"])
         pct = pred["percentage"]
-        
         col_a, col_b = st.columns([3, 1])
         with col_a:
             st.progress(pred["confidence"])
         with col_b:
-            st.write(f"{pred_emoji} {pct:.1f}%")
+            st.write(f"{pred['class']}: {pct:.1f}%")
 
 
 def render_twin_frames(image: Image.Image, source_name: str):
-    """Render twin frames layout - Image & Analysis side by side."""
+    """Render twin frames layout - Image & Analysis side by side dengan ukuran tetap."""
     engine = get_prediction_engine()
     
     # Process prediction
-    with st.spinner("🧠 Menganalisis gambar..."):
+    with st.spinner("Menganalisis gambar..."):
         result = engine.predict(image, top_k=3)
     
     # Demo mode check
     if result.is_demo:
-        st.warning("⚠️ Mode Demo - Model sedang dimuat, hasil adalah simulasi")
+        st.warning("Mode Demo - Model sedang dimuat, hasil adalah simulasi")
         return
     
     # Twin Frames Layout
     col_image, col_analysis = st.columns(2)
     
     with col_image:
-        st.markdown('<div class="frame-header">📷 Input Gambar</div>', unsafe_allow_html=True)
-        st.image(image, caption=source_name, use_container_width=True)
+        st.subheader("Input Gambar")
+        # Container dengan ukuran tetap untuk gambar
+        st.markdown("""
+        <style>
+        .fixed-image-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .fixed-image-container img {
+            max-height: 280px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        # Resize image untuk konsistensi
+        img_display = image.copy()
+        img_display.thumbnail((400, 280), Image.Resampling.LANCZOS)
+        st.image(img_display, caption=source_name, use_container_width=True)
     
     with col_analysis:
-        st.markdown('<div class="frame-header">🔍 Hasil Analisis</div>', unsafe_allow_html=True)
+        st.subheader("Hasil Analisis")
         render_analysis_result(result)
         
         # Low confidence warning
         if result.is_low_confidence:
-            st.warning("🤔 Confidence rendah - coba gunakan gambar yang lebih jelas")
+            st.warning("Confidence rendah - coba gunakan gambar yang lebih jelas")
 
 
 def render_input_section():
     """Render input section with tabs."""
-    tab_upload, tab_camera = st.tabs(["📁 Upload File", "📷 Ambil Foto"])
+    tab_upload, tab_camera = st.tabs(["Upload File", "Ambil Foto"])
     
     with tab_upload:
+        st.caption("Upload 1 gambar saja (JPG, JPEG, atau PNG, maks 5MB)")
+        
         uploaded_file = st.file_uploader(
             "Seret & lepas gambar di sini, atau klik untuk memilih",
             type=["jpg", "jpeg", "png"],
-            help="Format: JPG, JPEG, PNG. Maksimal: 5MB",
+            accept_multiple_files=False,  # Hanya 1 file
+            help="Format: JPG, JPEG, PNG. Maksimal: 5MB. Hanya 1 gambar.",
             label_visibility="visible"
         )
         
         if uploaded_file:
-            try:
-                image = Image.open(uploaded_file)
-                st.markdown("---")
-                render_twin_frames(image, uploaded_file.name)
-            except Exception:
-                st.error("😕 File tidak valid. Pastikan format gambar JPG atau PNG.")
+            # Validasi ukuran file (5MB = 5 * 1024 * 1024 bytes)
+            max_size = 5 * 1024 * 1024
+            if uploaded_file.size > max_size:
+                st.error(f"Ukuran file terlalu besar ({uploaded_file.size / (1024*1024):.1f}MB). Maksimal 5MB.")
+            else:
+                try:
+                    image = Image.open(uploaded_file)
+                    st.markdown("---")
+                    render_twin_frames(image, uploaded_file.name)
+                except Exception:
+                    st.error("File tidak valid. Pastikan format gambar JPG atau PNG.")
         else:
             # Placeholder state
-            st.markdown("""
-            <div class="placeholder-state">
-                <div class="placeholder-icon">🖼️</div>
-                <p class="placeholder-text">Hasil analisis akan muncul di sini setelah upload gambar</p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.info("Hasil analisis akan muncul di sini setelah upload gambar")
     
     with tab_camera:
-        camera_image = st.camera_input(
-            "Arahkan kamera ke alat tulis",
-            label_visibility="visible"
-        )
+        # Initialize session state untuk camera
+        if "camera_enabled" not in st.session_state:
+            st.session_state.camera_enabled = False
         
-        if camera_image:
-            try:
-                image = Image.open(camera_image)
-                st.markdown("---")
-                render_twin_frames(image, "Camera Capture")
-            except Exception:
-                st.error("😕 Gagal memproses foto. Silakan coba lagi.")
+        # Tombol untuk mengaktifkan kamera (lazy loading)
+        if not st.session_state.camera_enabled:
+            st.info("Klik tombol di bawah untuk mengaktifkan kamera")
+            if st.button("Aktifkan Kamera", use_container_width=True):
+                st.session_state.camera_enabled = True
+                st.rerun()
         else:
+            # CSS untuk mengatur ukuran kamera
             st.markdown("""
-            <div class="placeholder-state">
-                <div class="placeholder-icon">📷</div>
-                <p class="placeholder-text">Ambil foto untuk memulai analisis</p>
-            </div>
+            <style>
+            /* Atur ukuran container kamera */
+            [data-testid="stCameraInput"] > div {
+                max-width: 400px;
+            }
+            [data-testid="stCameraInput"] video {
+                max-width: 400px;
+                max-height: 300px;
+                border-radius: 8px;
+            }
+            [data-testid="stCameraInput"] img {
+                max-width: 400px;
+                max-height: 300px;
+                border-radius: 8px;
+            }
+            </style>
             """, unsafe_allow_html=True)
+            
+            # Tombol untuk menonaktifkan kamera
+            if st.button("Nonaktifkan Kamera", use_container_width=True):
+                st.session_state.camera_enabled = False
+                st.rerun()
+            
+            st.caption("Arahkan kamera ke alat tulis dan klik tombol capture")
+            
+            # Camera input dengan ukuran terbatas
+            camera_image = st.camera_input(
+                "Ambil foto",
+                label_visibility="collapsed"
+            )
+            
+            if camera_image:
+                try:
+                    image = Image.open(camera_image)
+                    st.markdown("---")
+                    render_twin_frames(image, "Camera Capture")
+                except Exception:
+                    st.error("Gagal memproses foto. Silakan coba lagi.")
 
 
 def render_sample_section():
