@@ -199,6 +199,14 @@ def render_sidebar():
         
         st.divider()
         
+        # How it works section in Sidebar
+        st.markdown("### 📝 Cara Penggunaan")
+        st.info("1️⃣ **Upload Foto**\nPilih gambar alat tulis atau ambil foto langsung.")
+        st.warning("2️⃣ **AI Menganalisis**\nSistem cerdas kami akan mendeteksi objek.")
+        st.success("3️⃣ **Lihat Hasil**\nDapatkan prediksi akurat instan.")
+        
+        st.divider()
+        
         # Mode Selection
         st.markdown("### ⚙️ Pengaturan")
         mode = st.radio(
@@ -208,14 +216,6 @@ def render_sidebar():
             label_visibility="collapsed"
         )
         st.session_state.user_mode = "expert" if mode == "Expert" else "simple"
-        
-        st.divider()
-        
-        # How it works section in Sidebar
-        st.markdown("### 📝 Cara Penggunaan")
-        st.info("1️⃣ **Upload Foto**\nPilih gambar alat tulis atau ambil foto langsung.")
-        st.warning("2️⃣ **AI Menganalisis**\nSistem cerdas kami akan mendeteksi objek.")
-        st.success("3️⃣ **Lihat Hasil**\nDapatkan prediksi akurat instan.")
         
         st.divider()
         
