@@ -1,69 +1,74 @@
 """
-Download model file from GitHub releases or alternative source.
-Run this script to download the trained model before running the app.
+Download model file from cloud storage.
+Supports Google Drive and direct URLs.
 """
 import os
 import sys
 from pathlib import Path
-import urllib.request
-import json
 
-# Model configuration
 MODEL_DIR = Path("models")
 MODEL_FILE = MODEL_DIR / "best_model.keras"
-MODEL_URL = "https://github.com/Hash-SD/cnn-custom-datagambar/releases/download/v1.0.0/best_model.keras"
 
-def download_model():
-    """Download model file from GitHub releases."""
-    
-    # Create models directory if it doesn't exist
+# Google Drive file ID - REPLACE WITH YOUR ACTUAL FILE ID
+# To get file ID: Share file > Copy link > Extract ID from URL
+# Example URL: https://drive.google.com/file/d/1ABC123xyz/view
+# File ID would be: 1ABC123xyz
+GDRIVE_FILE_ID = "YOUR_GOOGLE_DRIVE_FILE_ID"
+
+
+def download_from_gdrive(file_id: str, destination: Path) -> bool:
+    """Download file from Google Drive."""
+    try:
+        import gdown
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, str(destination), quiet=False)
+        return destination.exists()
+    except ImportError:
+        print("Installing gdown...")
+        os.system(f"{sys.executable} -m pip install gdown")
+        import gdown
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, str(destination), quiet=False)
+        return destination.exists()
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+def download_model() -> bool:
+    """Download model file."""
     MODEL_DIR.mkdir(exist_ok=True)
     
-    # Check if model already exists
+    # Check if model exists and is valid
     if MODEL_FILE.exists():
-        print(f"✅ Model already exists at {MODEL_FILE}")
-        return True
+        size_mb = MODEL_FILE.stat().st_size / 1024 / 1024
+        if size_mb > 50:  # Valid model should be > 50MB
+            print(f"✅ Model exists: {size_mb:.1f}MB")
+            return True
+        else:
+            print(f"⚠️ Model file too small ({size_mb:.1f}MB), re-downloading...")
+            MODEL_FILE.unlink()
     
-    print(f"📥 Downloading model from {MODEL_URL}...")
-    print("This may take a few minutes...")
+    print("📥 Downloading model from Google Drive...")
     
-    try:
-        # Download with progress
-        def download_progress(block_num, block_size, total_size):
-            downloaded = block_num * block_size
-            percent = min(downloaded * 100 // total_size, 100)
-            print(f"\r📊 Progress: {percent}% ({downloaded / 1024 / 1024:.1f}MB / {total_size / 1024 / 1024:.1f}MB)", end="")
-        
-        urllib.request.urlretrieve(MODEL_URL, MODEL_FILE, download_progress)
-        print("\n✅ Model downloaded successfully!")
-        return True
-        
-    except Exception as e:
-        print(f"\n❌ Error downloading model: {e}")
-        print("\nAlternative: Download manually from GitHub releases:")
-        print(f"  {MODEL_URL}")
+    if GDRIVE_FILE_ID == "YOUR_GOOGLE_DRIVE_FILE_ID":
+        print("❌ Please set GDRIVE_FILE_ID in download_model.py")
+        print("   1. Upload best_model.keras to Google Drive")
+        print("   2. Share file (Anyone with link)")
+        print("   3. Copy file ID from share URL")
+        print("   4. Replace YOUR_GOOGLE_DRIVE_FILE_ID with actual ID")
         return False
+    
+    return download_from_gdrive(GDRIVE_FILE_ID, MODEL_FILE)
 
-def verify_model():
-    """Verify model file exists and is valid."""
-    if not MODEL_FILE.exists():
-        print(f"❌ Model file not found at {MODEL_FILE}")
-        return False
-    
-    file_size = MODEL_FILE.stat().st_size / 1024 / 1024
-    print(f"✅ Model file verified: {file_size:.1f}MB")
-    return True
 
 if __name__ == "__main__":
     print("🤖 ATK Classifier - Model Downloader")
     print("=" * 50)
     
-    # Try to download
     if download_model():
-        # Verify
-        if verify_model():
-            print("\n✨ Ready to run the app!")
-            print("   Run: streamlit run streamlit_app.py")
-            sys.exit(0)
-    
-    sys.exit(1)
+        print("\n✨ Model ready!")
+        print("   Run: streamlit run streamlit_app.py")
+    else:
+        print("\n❌ Failed to download model")
+        sys.exit(1)

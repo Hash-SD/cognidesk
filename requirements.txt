@@ -1,4 +1,4 @@
-# ATK Classifier - Streamlit Cloud Dependencies
+# ATK Classifier - Dependencies
 
 # Web Framework
 streamlit>=1.28.0
@@ -15,3 +15,6 @@ pillow>=10.0.0
 
 # Visualization
 plotly>=5.17.0
+
+# Model Download
+gdown>=4.7.0

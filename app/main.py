@@ -1,142 +1,165 @@
 """
-Main application entry point for ATK Classifier.
-Implements sidebar navigation and routes to appropriate pages.
+ATK Classifier - Simple and Clean Interface
 """
 import streamlit as st
+from PIL import Image
 
 from app.config import settings
-from app.components.predictor import PredictionEngine
-from app.pages import home, predict, dashboard, model_management
+from app.components.predictor import PredictionEngine, display_results
 
 
 # Page configuration
 st.set_page_config(
-    page_title=settings.APP_NAME,
-    page_icon="🏷️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="ATK Classifier",
+    page_icon="✏️",
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 
-def init_session_state() -> None:
-    """Initialize session state variables."""
-    if "nav_page" not in st.session_state:
-        st.session_state.nav_page = "Home"
+def render_header():
+    """Render app header."""
+    st.markdown("""
+    <div style="text-align: center; padding: 1rem 0;">
+        <h1>✏️ ATK Classifier</h1>
+        <p style="color: #666; font-size: 1.1rem;">
+            Klasifikasi Alat Tulis Kantor dengan AI
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
-def render_demo_mode_indicator(is_demo: bool) -> None:
-    """
-    Render demo mode indicator in sidebar.
+def render_categories():
+    """Show supported categories."""
+    st.markdown("---")
+    col1, col2, col3 = st.columns(3)
     
-    Args:
-        is_demo: Whether running in demo mode
-    """
-    if is_demo:
-        st.sidebar.warning(
-            "🔔 **Demo Mode**\n\n"
-            "No trained model found. "
-            "Predictions are simulated."
+    with col1:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+            <div style="font-size: 2rem;">🧹</div>
+            <div style="font-weight: bold;">Eraser</div>
+            <div style="color: #666; font-size: 0.9rem;">Penghapus</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+            <div style="font-size: 2rem;">📄</div>
+            <div style="font-weight: bold;">Kertas</div>
+            <div style="color: #666; font-size: 0.9rem;">Paper</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+            <div style="font-size: 2rem;">✏️</div>
+            <div style="font-weight: bold;">Pensil</div>
+            <div style="color: #666; font-size: 0.9rem;">Pencil</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+def render_upload_section():
+    """Render image upload and prediction."""
+    st.markdown("---")
+    st.markdown("### 📸 Upload Gambar ATK")
+    
+    # Tab for upload methods
+    tab1, tab2 = st.tabs(["📁 Upload File", "📷 Kamera"])
+    
+    with tab1:
+        uploaded_file = st.file_uploader(
+            "Pilih gambar",
+            type=["jpg", "jpeg", "png"],
+            help="Format: JPG, JPEG, PNG. Max: 5MB",
+            label_visibility="collapsed"
         )
-    else:
-        st.sidebar.success(
-            "✅ **Production Mode**\n\n"
-            "Model loaded successfully."
-        )
-
-
-def render_sidebar_navigation() -> str:
-    """
-    Render sidebar navigation menu.
-    
-    Returns:
-        Selected page name
-    """
-    st.sidebar.title(f"🏷️ {settings.APP_NAME}")
-    st.sidebar.markdown(f"*v{settings.APP_VERSION}*")
-    st.sidebar.markdown("---")
-    
-    # Navigation menu
-    pages = {
-        "Home": "🏠",
-        "Predict": "🎯",
-        "Dashboard": "📊",
-        "Model Management": "🔧"
-    }
-
-    # Get current page from session state
-    current_page = st.session_state.get("nav_page", "Home")
-    
-    # Create navigation buttons
-    st.sidebar.markdown("### Navigation")
-    
-    for page_name, icon in pages.items():
-        # Highlight active page
-        if page_name == current_page:
-            button_type = "primary"
-        else:
-            button_type = "secondary"
         
-        if st.sidebar.button(
-            f"{icon} {page_name}",
-            key=f"nav_{page_name}",
-            use_container_width=True,
-            type=button_type
-        ):
-            st.session_state.nav_page = page_name
-            st.rerun()
+        if uploaded_file:
+            process_image(uploaded_file)
     
-    return current_page
+    with tab2:
+        camera_image = st.camera_input(
+            "Ambil foto",
+            label_visibility="collapsed"
+        )
+        
+        if camera_image:
+            process_image(camera_image)
 
 
-def render_sidebar_info() -> None:
-    """Render additional sidebar information."""
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### About")
-    st.sidebar.markdown(f"""
-    {settings.APP_DESCRIPTION}
-    
-    **Supported Classes:**
-    """)
-    
-    # Display class names in compact format
-    for class_name in settings.CLASS_NAMES:
-        st.sidebar.markdown(f"- {class_name}")
+def process_image(image_source):
+    """Process and predict image."""
+    try:
+        image = Image.open(image_source)
+        
+        # Show image
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.image(image, caption="Gambar Input", use_container_width=True)
+        
+        with col2:
+            # Run prediction
+            engine = get_prediction_engine()
+            
+            with st.spinner("🔄 Menganalisis..."):
+                result = engine.predict(image, top_k=3)
+            
+            # Show result
+            if result.is_demo:
+                st.warning("⚠️ Mode Demo - Model belum tersedia")
+            
+            # Main prediction
+            st.markdown(f"""
+            <div style="text-align: center; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white;">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Hasil Prediksi</div>
+                <div style="font-size: 2rem; font-weight: bold; margin: 0.5rem 0;">{result.predicted_class.upper()}</div>
+                <div style="font-size: 1.5rem;">{result.percentage:.1f}%</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Confidence bar
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            if result.is_low_confidence:
+                st.warning("⚠️ Confidence rendah - hasil mungkin kurang akurat")
+            
+            # Top predictions
+            st.markdown("**Semua Prediksi:**")
+            for pred in result.top_predictions:
+                st.progress(pred["confidence"], text=f"{pred['class']}: {pred['percentage']:.1f}%")
+                
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
 
 
-def route_to_page(page_name: str) -> None:
-    """
-    Route to the appropriate page based on selection.
-    
-    Args:
-        page_name: Name of the page to render
-    """
-    page_map = {
-        "Home": home.render,
-        "Predict": predict.render,
-        "Dashboard": dashboard.render,
-        "Model Management": model_management.render
-    }
-    
-    render_func = page_map.get(page_name, home.render)
-    render_func()
+@st.cache_resource
+def get_prediction_engine():
+    """Get cached prediction engine."""
+    return PredictionEngine()
 
 
-def main() -> None:
-    """Main application entry point."""
-    # Initialize session state
-    init_session_state()
-    
-    # Check demo mode
-    engine = PredictionEngine()
-    is_demo = engine.is_demo_mode()
-    
-    # Render sidebar
-    selected_page = render_sidebar_navigation()
-    render_demo_mode_indicator(is_demo)
-    render_sidebar_info()
-    
-    # Route to selected page
-    route_to_page(selected_page)
+def render_footer():
+    """Render footer."""
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #999; font-size: 0.85rem; padding: 1rem;">
+        <p>🤖 Powered by Deep Learning | CNN Model</p>
+        <p>Made with ❤️ by Hash-SD</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def main():
+    """Main app entry point."""
+    render_header()
+    render_categories()
+    render_upload_section()
+    render_footer()
 
 
 if __name__ == "__main__":
