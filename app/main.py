@@ -188,7 +188,12 @@ def inject_custom_css():
 def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
-        st.markdown("### 🧠 CogniDesk")
+        # Styled to match the main title (Identifikasi Alat Tulis)
+        st.markdown("""
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 2.5rem; font-weight: 500; color: #202124; margin-bottom: 0.5rem; line-height: 1.2;">
+            🧠 CogniDesk
+        </div>
+        """, unsafe_allow_html=True)
         
         # Mode Selection
         st.caption("Pengaturan")
@@ -227,8 +232,8 @@ def render_main_header():
     """Render main content header - Google Style."""
     st.markdown("""
     <div class="main-header">
-        <div class="main-title">CogniDesk</div>
-        <div class="main-subtitle">AI Stationery Identification</div>
+        <div class="main-title">Identifikasi Alat Tulis</div>
+        <div class="main-subtitle">Powered by CogniDesk AI</div>
     </div>
     """, unsafe_allow_html=True)
 
