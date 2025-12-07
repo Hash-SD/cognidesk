@@ -38,19 +38,12 @@ ENV/
 *.swo
 *~
 
-# Model Files
-*.h5
-*.keras
-*.pb
-*.onnx
-models/best_model.h5
-models/*.h5
-
-# Jupyter
+# Jupyter Notebooks (keep for reference but exclude checkpoints)
 .ipynb_checkpoints/
 
 # Testing
 .pytest_cache/
+.hypothesis/
 .coverage
 htmlcov/
 .tox/
@@ -66,3 +59,16 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Dataset (too large for git)
+dataset_alat_tulis/
+dataset_alat_tulis.zip
+
+# Kiro specs (development only)
+.kiro/
+
+# Large model files (use Git LFS or download at runtime)
+*.keras
+*.h5
+models/best_model.keras
+models/best_model.h5

@@ -1,13 +1,13 @@
-# ATK Classifier MLOps Dependencies
+# ATK Classifier - Streamlit Cloud Dependencies
 
 # Web Framework
 streamlit>=1.28.0
 
 # Deep Learning
-tensorflow>=2.13.0
+tensorflow>=2.13.0,<2.16.0
 
 # Data Processing
-numpy>=1.24.0
+numpy>=1.24.0,<2.0.0
 pandas>=2.0.0
 
 # Image Processing
@@ -15,14 +15,3 @@ pillow>=10.0.0
 
 # Visualization
 plotly>=5.17.0
-
-# Testing
-pytest>=7.4.0
-hypothesis>=6.88.0
-
-# Model Training & Tuning
-keras-tuner>=1.4.0
-opencv-python>=4.8.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-scikit-learn>=1.3.0
