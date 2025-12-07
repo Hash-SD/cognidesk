@@ -208,6 +208,9 @@ class ModelPredictor:
         Returns:
             PredictionResult with predicted class, confidence, and top-k predictions
         """
+        # Ensure top_k doesn't exceed number of classes
+        top_k = min(top_k, len(self.class_names))
+        
         if self._demo_mode:
             probabilities = self._generate_demo_predictions(top_k)
         else:

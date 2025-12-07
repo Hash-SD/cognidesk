@@ -63,6 +63,11 @@ streamlit run streamlit_app.py
 - Pillow
 - Plotly
 
+## 📚 Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) - Model & project structure
+- [Development](docs/DEVELOPMENT.md) - Setup & testing guide
+
 ## 📄 License
 
 MIT

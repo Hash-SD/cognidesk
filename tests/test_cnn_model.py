@@ -152,3 +152,62 @@ class TestLowConfidenceDetection:
         expected_low_confidence = result.confidence < threshold
         assert result.is_low_confidence == expected_low_confidence, \
             f"is_low_confidence={result.is_low_confidence} but confidence={result.confidence}, threshold={threshold}"
+
+
+# **Feature: atk-classifier-mlops, Property 6: Top-K Exceeds Class Count**
+# **Validates: Bug fix for top_k > num_classes**
+class TestTopKExceedsClassCount:
+    """Tests for handling top_k larger than number of classes."""
+    
+    SMALL_CLASS_NAMES = ["eraser", "kertas", "pensil"]  # Only 3 classes
+    
+    @given(
+        seed=st.integers(min_value=0, max_value=10000),
+        top_k=st.integers(min_value=1, max_value=20)  # Can be larger than class count
+    )
+    @settings(max_examples=50)
+    def test_top_k_capped_at_class_count(self, seed, top_k):
+        """
+        Bug Fix Test: When top_k exceeds the number of classes, the predictor 
+        SHALL return at most len(class_names) predictions without raising an error.
+        """
+        np.random.seed(seed)
+        
+        test_image = np.random.rand(1, 300, 300, 3).astype(np.float32)
+        
+        predictor = ModelPredictor(
+            model_path=None,
+            class_names=self.SMALL_CLASS_NAMES
+        )
+        
+        # This should NOT raise an IndexError even if top_k > len(class_names)
+        result = predictor.predict(test_image, top_k=top_k)
+        
+        # Verify we get at most len(class_names) predictions
+        expected_count = min(top_k, len(self.SMALL_CLASS_NAMES))
+        assert len(result.top_predictions) == expected_count, \
+            f"Expected {expected_count} predictions, got {len(result.top_predictions)}"
+        
+        # Verify all predicted classes are valid
+        for pred in result.top_predictions:
+            assert pred["class"] in self.SMALL_CLASS_NAMES, \
+                f"Invalid class '{pred['class']}' not in {self.SMALL_CLASS_NAMES}"
+    
+    def test_top_k_10_with_3_classes(self):
+        """
+        Specific test case: Request top_k=10 with only 3 classes.
+        This was the original bug - would cause IndexError.
+        """
+        test_image = np.random.rand(1, 300, 300, 3).astype(np.float32)
+        
+        predictor = ModelPredictor(
+            model_path=None,
+            class_names=self.SMALL_CLASS_NAMES
+        )
+        
+        # This should NOT raise an error
+        result = predictor.predict(test_image, top_k=10)
+        
+        # Should return exactly 3 predictions (capped at class count)
+        assert len(result.top_predictions) == 3, \
+            f"Expected 3 predictions, got {len(result.top_predictions)}"
