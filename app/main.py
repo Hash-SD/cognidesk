@@ -59,82 +59,7 @@ def inject_custom_css():
             max-width: 100%;
         }
         
-        /* ============ SIDEBAR STYLING ============ */
-        [data-testid="stSidebar"] {
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-        }
-        
-        [data-testid="stSidebar"] > div:first-child {
-            padding: 1.5rem 1rem;
-        }
-        
-        /* ============ LOGO HEADER ============ */
-        .logo-container {
-            text-align: center;
-            padding: 1rem 0 1.5rem 0;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-        }
-        
-        .logo-text {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-        
-        .logo-subtitle {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 0.3rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        /* ============ SIDEBAR SECTIONS ============ */
-        .sidebar-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .sidebar-title {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.8rem;
-        }
-        
-        .sidebar-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 1.5rem 0;
-        }
-        
-        /* ============ TEAM MEMBER CARD ============ */
-        .team-member {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.5rem 0;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-        }
-        
-        .team-avatar {
-            width: 28px;
-            height: 28px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+
         
         /* ============ MAIN HEADER ============ */
         .main-header {
@@ -471,18 +396,16 @@ def inject_custom_css():
 
 
 def render_sidebar():
-    """Render sidebar dengan logo, panduan, dan tim pengembang."""
+    """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
         # Logo Header
-        st.markdown("""
-        <div class="logo-container">
-            <h1 class="logo-text">🧠 CogniDesk</h1>
-            <p class="logo-subtitle">AI Stationery Detector</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.title("🧠 CogniDesk")
+        st.caption("AI Stationery Detector")
+        
+        st.divider()
         
         # Panduan Section
-        st.markdown('<p class="sidebar-title">📖 Panduan Input</p>', unsafe_allow_html=True)
+        st.subheader("📖 Panduan Input")
         
         with st.expander("Cara Mendapatkan Hasil Terbaik", expanded=False):
             st.markdown("""
@@ -498,38 +421,33 @@ def render_sidebar():
             - Satu objek per gambar
             """)
         
-        # Divider
-        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        st.divider()
         
         # Kategori yang Didukung
-        st.markdown('<p class="sidebar-title">🏷️ Kategori Didukung</p>', unsafe_allow_html=True)
+        st.subheader("🏷️ Kategori Didukung")
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.markdown("🧹<br><small>Eraser</small>", unsafe_allow_html=True)
+            st.write("🧹")
+            st.caption("Eraser")
         with col2:
-            st.markdown("📄<br><small>Kertas</small>", unsafe_allow_html=True)
+            st.write("📄")
+            st.caption("Kertas")
         with col3:
-            st.markdown("✏️<br><small>Pensil</small>", unsafe_allow_html=True)
+            st.write("✏️")
+            st.caption("Pensil")
         
-        # Divider
-        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        st.divider()
         
         # Tim Pengembang
-        st.markdown('<p class="sidebar-title">👥 Tim Pengembang</p>', unsafe_allow_html=True)
+        st.subheader("👥 Tim Pengembang")
+        st.write("👤 Izza")
+        st.write("👤 Haikal")
+        st.write("👤 Hermawan")
         
-        team_members = ["Izza", "Haikal", "Hermawan"]
-        for member in team_members:
-            initial = member[0].upper()
-            st.markdown(f"""
-            <div class="team-member">
-                <div class="team-avatar">{initial}</div>
-                <span>{member}</span>
-            </div>
-            """, unsafe_allow_html=True)
+        st.divider()
         
         # Footer
-        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
         st.caption("© 2024 CogniDesk v1.0")
 
 
