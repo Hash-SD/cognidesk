@@ -30,23 +30,23 @@ def inject_custom_css():
         
         /* ============ ROOT VARIABLES ============ */
         :root {
-            --primary: #0E4C92;
-            --primary-light: #1565C0;
-            --accent: #008080;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --danger: #EF4444;
-            --bg-main: #F8F9FA;
+            --primary: #2563EB; /* Modern Blue */
+            --primary-light: #60A5FA;
+            --accent: #10B981; /* Emerald */
+            --success: #059669;
+            --warning: #D97706;
+            --danger: #DC2626;
+            --bg-main: #F3F4F6; /* Cool Gray 100 */
             --bg-surface: #FFFFFF;
-            --bg-sidebar: #F0F2F5;
-            --text-primary: #333333;
-            --text-secondary: #6B7280;
-            --text-muted: #9CA3AF;
+            --bg-sidebar: #F9FAFB; /* Cool Gray 50 */
+            --text-primary: #111827; /* Cool Gray 900 */
+            --text-secondary: #4B5563; /* Cool Gray 600 */
+            --text-muted: #9CA3AF; /* Cool Gray 400 */
             --border: #E5E7EB;
-            --shadow: rgba(0, 0, 0, 0.08);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
         }
         
         /* ============ MAIN LAYOUT ============ */
@@ -370,6 +370,18 @@ def render_sidebar():
         st.caption("AI Stationery Detector")
         
         st.divider()
+
+        # Mode Selection
+        st.subheader("Pengaturan Tampilan")
+        mode = st.radio(
+            "Mode Pengguna",
+            ["Pemula (Simple)", "Ahli (Expert)"],
+            index=0,
+            help="Pilih 'Pemula' untuk tampilan sederhana atau 'Ahli' untuk detail teknis."
+        )
+        st.session_state.user_mode = "expert" if "Ahli" in mode else "simple"
+        
+        st.divider()
         
         # Panduan Section
         st.subheader("Panduan Input")
@@ -377,10 +389,10 @@ def render_sidebar():
         with st.expander("Cara Mendapatkan Hasil Terbaik", expanded=False):
             st.markdown("""
             **Tips Foto:**
-            - Gunakan pencahayaan yang cukup
-            - Pastikan objek tidak blur
-            - Gunakan background polos
-            - Posisikan objek di tengah frame
+            - 💡 Gunakan pencahayaan yang cukup
+            - 📸 Pastikan objek tidak blur
+            - ⬜ Gunakan background polos
+            - 🎯 Posisikan objek di tengah frame
             
             **Format File:**
             - JPG, JPEG, atau PNG
@@ -422,8 +434,13 @@ def get_prediction_engine():
 
 def render_main_header():
     """Render main content header - rata kiri."""
-    st.title("Identifikasi Alat Tulis Anda")
-    st.caption("Upload gambar atau ambil foto untuk mendeteksi jenis alat tulis")
+    st.title("Identifikasi Alat Tulis")
+    st.markdown("""
+    Selamat datang di **CogniDesk**! 👋
+    
+    Aplikasi ini membantu Anda mengenali jenis alat tulis (Penghapus, Kertas, Pensil) menggunakan kecerdasan buatan.
+    Silakan upload gambar atau ambil foto langsung.
+    """)
 
 
 def get_emoji_for_class(class_name: str) -> str:
@@ -444,32 +461,54 @@ def get_confidence_class(percentage: float) -> str:
 def render_analysis_result(result):
     """Render analysis result using native Streamlit components."""
     emoji = get_emoji_for_class(result.predicted_class)
+    user_mode = st.session_state.get("user_mode", "simple")
     
     # Main emoji - centered
-    st.markdown(f"<div style='text-align:center; font-size:3.5rem; padding:1rem 0;'>{emoji}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; font-size:5rem; padding:1rem 0; animation: bounce 1s infinite alternate;'>{emoji}</div>", unsafe_allow_html=True)
     
     # Result label
     if result.percentage >= 50:
-        st.success(f"**{result.predicted_class.upper()}** DETECTED")
+        st.success(f"Sepertinya ini adalah **{result.predicted_class.upper()}**")
     else:
-        st.warning(f"**{result.predicted_class.upper()}** DETECTED")
+        st.warning(f"Kemungkinan ini adalah **{result.predicted_class.upper()}**")
     
-    # Confidence display
-    st.write(f"**Confidence:** {result.percentage:.1f}%")
-    st.progress(result.confidence)
-    
-    st.divider()
-    
-    # All predictions with progress bars
-    st.write("**All Predictions:**")
-    
-    for pred in result.top_predictions:
-        pct = pred["percentage"]
-        col_a, col_b = st.columns([3, 1])
-        with col_a:
-            st.progress(pred["confidence"])
-        with col_b:
-            st.write(f"{pred['class']}: {pct:.1f}%")
+    # Simple Mode Content
+    if user_mode == "simple":
+        st.write("Tingkat Keyakinan:")
+        if result.percentage >= 80:
+            st.progress(result.confidence, text="Sangat Yakin")
+        elif result.percentage >= 50:
+            st.progress(result.confidence, text="Cukup Yakin")
+        else:
+            st.progress(result.confidence, text="Kurang Yakin")
+            st.info("💡 Tips: Coba ambil foto dengan pencahayaan yang lebih baik atau background yang lebih bersih.")
+
+    # Expert Mode Content
+    else:
+        st.write(f"**Confidence Score:** {result.percentage:.2f}%")
+        st.progress(result.confidence)
+        
+        st.divider()
+        
+        # All predictions with progress bars
+        st.write("**Distribusi Probabilitas (Softmax):**")
+        
+        for pred in result.top_predictions:
+            pct = pred["percentage"]
+            col_a, col_b = st.columns([3, 1])
+            with col_a:
+                st.progress(pred["confidence"])
+            with col_b:
+                st.write(f"{pred['class']}: {pct:.2f}%")
+        
+        st.divider()
+        with st.expander("🔍 Debug Info (JSON)"):
+            st.json({
+                "predicted_class": result.predicted_class,
+                "confidence": result.confidence,
+                "is_low_confidence": result.is_low_confidence,
+                "raw_predictions": result.top_predictions
+            })
 
 
 def render_twin_frames(image: Image.Image, source_name: str):
@@ -529,13 +568,13 @@ def render_input_section():
     tab_upload, tab_camera = st.tabs(["Upload File", "Ambil Foto"])
     
     with tab_upload:
-        st.caption("Upload 1 gambar saja (JPG, JPEG, atau PNG, maks 5MB)")
+        st.info("ℹ️ **Tips:** Gunakan gambar yang jelas dengan satu objek utama.")
         
         uploaded_file = st.file_uploader(
-            "Seret & lepas gambar di sini, atau klik untuk memilih",
+            "Pilih gambar dari perangkat Anda",
             type=["jpg", "jpeg", "png"],
-            accept_multiple_files=False,  # Hanya 1 file
-            help="Format: JPG, JPEG, PNG. Maksimal: 5MB. Hanya 1 gambar.",
+            accept_multiple_files=False,
+            help="Format yang didukung: JPG, JPEG, PNG. Maksimal 5MB.",
             label_visibility="visible"
         )
         
@@ -543,17 +582,22 @@ def render_input_section():
             # Validasi ukuran file (5MB = 5 * 1024 * 1024 bytes)
             max_size = 5 * 1024 * 1024
             if uploaded_file.size > max_size:
-                st.error(f"Ukuran file terlalu besar ({uploaded_file.size / (1024*1024):.1f}MB). Maksimal 5MB.")
+                st.error(f"⚠️ Ukuran file terlalu besar ({uploaded_file.size / (1024*1024):.1f}MB). Maksimal 5MB.")
             else:
                 try:
                     image = Image.open(uploaded_file)
                     st.markdown("---")
                     render_twin_frames(image, uploaded_file.name)
                 except Exception:
-                    st.error("File tidak valid. Pastikan format gambar JPG atau PNG.")
+                    st.error("❌ File tidak valid. Pastikan format gambar JPG atau PNG.")
         else:
             # Placeholder state
-            st.info("Hasil analisis akan muncul di sini setelah upload gambar")
+            st.markdown("""
+            <div class="placeholder-state">
+                <div class="placeholder-icon">📁</div>
+                <div class="placeholder-text">Belum ada gambar yang dipilih.<br>Silakan upload gambar untuk memulai analisis.</div>
+            </div>
+            """, unsafe_allow_html=True)
     
     with tab_camera:
         # Initialize session state untuk camera
@@ -562,8 +606,12 @@ def render_input_section():
         
         # Tombol untuk mengaktifkan kamera (lazy loading)
         if not st.session_state.camera_enabled:
-            st.info("Klik tombol di bawah untuk mengaktifkan kamera")
-            if st.button("Aktifkan Kamera", use_container_width=True):
+            st.markdown("""
+            <div style="text-align: center; padding: 2rem;">
+                <p>Gunakan kamera perangkat Anda untuk mengambil foto langsung.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("📸 Aktifkan Kamera", use_container_width=True):
                 st.session_state.camera_enabled = True
                 st.rerun()
         else:
@@ -572,27 +620,24 @@ def render_input_section():
             <style>
             /* Atur ukuran container kamera */
             [data-testid="stCameraInput"] > div {
-                max-width: 400px;
+                width: 100%;
+                max-width: 100%;
             }
             [data-testid="stCameraInput"] video {
-                max-width: 400px;
-                max-height: 300px;
-                border-radius: 8px;
-            }
-            [data-testid="stCameraInput"] img {
-                max-width: 400px;
-                max-height: 300px;
-                border-radius: 8px;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             }
             </style>
             """, unsafe_allow_html=True)
             
-            # Tombol untuk menonaktifkan kamera
-            if st.button("Nonaktifkan Kamera", use_container_width=True):
-                st.session_state.camera_enabled = False
-                st.rerun()
+            col_cam_action, col_cam_close = st.columns([3, 1])
+            with col_cam_close:
+                # Tombol untuk menonaktifkan kamera
+                if st.button("❌ Tutup", use_container_width=True):
+                    st.session_state.camera_enabled = False
+                    st.rerun()
             
-            st.caption("Arahkan kamera ke alat tulis dan klik tombol capture")
+            st.caption("Arahkan kamera ke alat tulis dan klik tombol capture di bawah")
             
             # Camera input dengan ukuran terbatas
             camera_image = st.camera_input(
@@ -606,7 +651,7 @@ def render_input_section():
                     st.markdown("---")
                     render_twin_frames(image, "Camera Capture")
                 except Exception:
-                    st.error("Gagal memproses foto. Silakan coba lagi.")
+                    st.error("❌ Gagal memproses foto. Silakan coba lagi.")
 
 
 def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Image.Image:
@@ -630,7 +675,8 @@ def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Im
 
 def render_sample_section():
     """Render sample images section dengan ukuran gambar yang sama."""
-    with st.expander("Coba dengan Contoh Gambar"):
+    with st.expander("🧪 Coba dengan Contoh Gambar (Demo)"):
+        st.markdown("Tidak punya gambar? Coba salah satu gambar di bawah ini:")
         samples_dir = Path("samples")
         
         if not samples_dir.exists():
@@ -656,7 +702,7 @@ def render_sample_section():
                     # Resize ke ukuran yang sama
                     img_resized = resize_sample_image(img, SAMPLE_SIZE)
                     st.image(img_resized, caption=label, use_container_width=True)
-                    if st.button(f"Coba {label}", key=f"try_{key}", use_container_width=True):
+                    if st.button(f"Pilih {label}", key=f"try_{key}", use_container_width=True):
                         st.session_state.selected_sample = key
                         st.session_state.sample_image = img  # Simpan gambar asli untuk prediksi
         
@@ -667,7 +713,7 @@ def render_sample_section():
                 st.session_state.sample_image,
                 f"Sample: {st.session_state.selected_sample}"
             )
-            if st.button("Reset", use_container_width=True):
+            if st.button("🔄 Reset Pilihan", use_container_width=True):
                 st.session_state.sample_image = None
                 st.session_state.selected_sample = None
                 st.rerun()
