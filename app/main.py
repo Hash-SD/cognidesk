@@ -188,9 +188,9 @@ def inject_custom_css():
 def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
-        # Custom HTML untuk membuat judul sidebar lebih besar
+        # Judul Sidebar dengan ukuran yang sama dengan Main Header (32px)
         st.markdown("""
-        <h1 style='font-size: 3rem; margin-bottom: 0;'>
+        <h1 style='font-size: 32px; margin-bottom: 0;'>
             🧠 CogniDesk
         </h1>
         """, unsafe_allow_html=True)
@@ -231,8 +231,12 @@ def get_prediction_engine():
 
 def render_main_header():
     """Render main content header - Standard Streamlit."""
-    # Menggunakan h2 (header) agar tidak terlalu besar seperti title
-    st.header("✨ Identifikasi Alat Tulis")
+    # Judul Main Header dengan ukuran yang sama dengan Sidebar (32px)
+    st.markdown("""
+    <h1 style='font-size: 32px; margin-bottom: 0;'>
+        ✨ Identifikasi Alat Tulis
+    </h1>
+    """, unsafe_allow_html=True)
     st.markdown("### 🤖 Powered by CogniDesk AI")
     st.markdown("---")
     st.info("👋 Selamat datang! Upload gambar alat tulis (Pensil, Penghapus, atau Kertas) untuk dianalisis.")
