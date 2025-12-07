@@ -568,12 +568,27 @@ def render_analysis_result(result):
     """Render analysis result in the right frame."""
     emoji = get_emoji_for_class(result.predicted_class)
     conf_class = get_confidence_class(result.percentage)
-    label_class = "" if result.percentage >= 50 else "warning"
+    label_class = "warning" if result.percentage < 50 else ""
     
+    # Build detail predictions HTML
+    details_html = ""
+    for pred in result.top_predictions:
+        pred_emoji = get_emoji_for_class(pred["class"])
+        pct = pred["percentage"]
+        color = "#10B981" if pct >= 80 else "#F59E0B" if pct >= 50 else "#EF4444"
+        details_html += f"""
+        <div class="detail-item">
+            <span class="detail-item-emoji">{pred_emoji}</span>
+            <span class="detail-item-name">{pred['class']}</span>
+            <span class="detail-item-value" style="color: {color};">{pct:.1f}%</span>
+        </div>
+        """
+    
+    # Render complete HTML in one block
     st.markdown(f"""
     <div class="analysis-result">
         <div class="result-emoji">{emoji}</div>
-        <div class="result-label {label_class}">{result.predicted_class} Detected</div>
+        <div class="result-label {label_class}">{result.predicted_class.upper()} DETECTED</div>
         
         <div class="confidence-container">
             <div class="confidence-label">
@@ -587,25 +602,10 @@ def render_analysis_result(result):
         
         <div class="detail-predictions">
             <div class="detail-title">All Predictions</div>
-    """, unsafe_allow_html=True)
-    
-    # Detail predictions
-    for pred in result.top_predictions:
-        pred_emoji = get_emoji_for_class(pred["class"])
-        pct = pred["percentage"]
-        conf_class = get_confidence_class(pct)
-        
-        color = "#10B981" if pct >= 80 else "#F59E0B" if pct >= 50 else "#EF4444"
-        
-        st.markdown(f"""
-        <div class="detail-item">
-            <span class="detail-item-emoji">{pred_emoji}</span>
-            <span class="detail-item-name">{pred['class']}</span>
-            <span class="detail-item-value" style="color: {color};">{pct:.1f}%</span>
+            {details_html}
         </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("</div></div>", unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
 def render_twin_frames(image: Image.Image, source_name: str):
