@@ -1,0 +1,16 @@
+{
+  "class_names": [
+    "eraser",
+    "kertas",
+    "pensil"
+  ],
+  "input_size": [
+    300,
+    300
+  ],
+  "metrics": {
+    "accuracy": 0.8810811042785645,
+    "val_accuracy": 0.699999988079071
+  },
+  "timestamp": "2025-12-07T11:18:14.776579"
+}

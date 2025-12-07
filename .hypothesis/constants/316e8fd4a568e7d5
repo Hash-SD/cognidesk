@@ -1,0 +1,4 @@
+# file: D:\deeplearning\models\preprocessing.py
+# hypothesis_version: 6.148.5
+
+[255.0, 224, '.', 'RGB', 'Unknown', 'format', 'height', 'mode', 'width']

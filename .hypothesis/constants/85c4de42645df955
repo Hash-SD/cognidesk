@@ -1,0 +1,4 @@
+# file: D:\deeplearning\models\cnn_model.py
+# hypothesis_version: 6.148.5
+
+[0.001, 0.5, 1.0, 100, 128, 255, 300, '.json', 'accuracy', 'class', 'class_names', 'confidence', 'demo', 'eraser', 'kertas', 'metadata', 'mode', 'model_loaded', 'model_path', 'num_classes', 'pensil', 'percentage', 'production', 'r', 'relu', 'same', 'softmax']

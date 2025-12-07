@@ -1,0 +1,4 @@
+# file: D:\deeplearning\models\cnn_model.py
+# hypothesis_version: 6.148.5
+
+[0.3, 0.5, 100, 128, 224, 256, 512, 'Correction Tape', 'Penggaris', 'Penghapus', 'Pensil', 'Pensil Mekanik', 'Pulpen', 'Spidol', 'Tipe X', 'accuracy', 'adam', 'class', 'confidence', 'percentage', 'relu', 'same', 'softmax']
