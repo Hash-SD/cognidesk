@@ -188,13 +188,16 @@ def inject_custom_css():
 def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
-        # Judul Sidebar dengan ukuran yang sama dengan Main Header (32px)
+        # Judul Sidebar dengan layout vertikal (Emoji di atas, Teks di bawah)
         st.markdown("""
-        <h1 style='font-size: 32px; margin-bottom: 0;'>
-            🧠 CogniDesk
-        </h1>
+        <div style='text-align: center; padding-bottom: 1rem;'>
+            <div style='font-size: 5rem; line-height: 1.2;'>🧠</div>
+            <h1 style='font-size: 32px; margin: 0; padding: 0;'>CogniDesk</h1>
+            <p style='font-size: 0.9rem; color: #666; margin-top: 0.5rem;'>🚀 AI Stationery Detector</p>
+        </div>
         """, unsafe_allow_html=True)
-        st.caption("🚀 AI Stationery Detector")
+        
+        st.divider()
         
         # Mode Selection
         st.markdown("### ⚙️ Pengaturan")
@@ -205,6 +208,24 @@ def render_sidebar():
             label_visibility="collapsed"
         )
         st.session_state.user_mode = "expert" if mode == "Expert" else "simple"
+        
+        st.divider()
+        
+        # How it works section in Sidebar
+        st.markdown("### 📝 Cara Penggunaan")
+        st.info("1️⃣ **Upload Foto**\nPilih gambar alat tulis atau ambil foto langsung.")
+        st.warning("2️⃣ **AI Menganalisis**\nSistem cerdas kami akan mendeteksi objek.")
+        st.success("3️⃣ **Lihat Hasil**\nDapatkan prediksi akurat instan.")
+        
+        st.divider()
+        
+        # Developer Team
+        st.markdown("### 👨‍💻 Tim Pengembang")
+        st.markdown("""
+        - Izza
+        - Haikal
+        - Hermawan
+        """)
         
         st.divider()
         
@@ -219,8 +240,6 @@ def render_sidebar():
             
             **Versi:** 1.0.0
             """)
-        
-        st.caption("© 2024 CogniDesk")
 
 
 @st.cache_resource
@@ -237,18 +256,7 @@ def render_main_header():
         ✨ Identifikasi Alat Tulis
     </h1>
     """, unsafe_allow_html=True)
-    st.markdown("### 🤖 Powered by CogniDesk AI")
     
-    # Hero Section with 3 columns to fill space
-    st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.info("1️⃣ **Upload Foto**\nPilih gambar alat tulis atau ambil foto langsung.")
-    with col2:
-        st.warning("2️⃣ **AI Menganalisis**\nSistem cerdas kami akan mendeteksi objek.")
-    with col3:
-        st.success("3️⃣ **Lihat Hasil**\nDapatkan prediksi akurat instan.")
-        
     st.markdown("---")
 
 
@@ -407,7 +415,8 @@ def render_footer():
     """Render footer."""
     st.markdown("""
     <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #eee; color: #888;">
-        <p>Made with ❤️ by CogniDesk Team | © 2024</p>
+        <p>🤖 Powered by CogniDesk AI</p>
+        <p>Made with ❤️ by CogniDesk Team | © 2025</p>
     </div>
     """, unsafe_allow_html=True)
 
