@@ -238,8 +238,18 @@ def render_main_header():
     </h1>
     """, unsafe_allow_html=True)
     st.markdown("### 🤖 Powered by CogniDesk AI")
+    
+    # Hero Section with 3 columns to fill space
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info("1️⃣ **Upload Foto**\nPilih gambar alat tulis atau ambil foto langsung.")
+    with col2:
+        st.warning("2️⃣ **AI Menganalisis**\nSistem cerdas kami akan mendeteksi objek.")
+    with col3:
+        st.success("3️⃣ **Lihat Hasil**\nDapatkan prediksi akurat instan.")
+        
     st.markdown("---")
-    st.info("👋 Selamat datang! Upload gambar alat tulis (Pensil, Penghapus, atau Kertas) untuk dianalisis.")
 
 
 def get_emoji_for_class(class_name: str) -> str:
@@ -327,6 +337,14 @@ def render_input_section():
                 render_twin_frames(image, uploaded_file.name)
             except Exception:
                 st.error("❌ Format file tidak valid.")
+        else:
+             # Placeholder content to fill space
+            st.markdown("""
+            <div style="text-align: center; padding: 3rem; background-color: #f0f2f6; border-radius: 12px; border: 2px dashed #ccc; margin-top: 1rem;">
+                <h3 style="color: #555;">📁 Belum ada gambar dipilih</h3>
+                <p style="color: #777;">Silakan upload gambar JPG/PNG atau gunakan kamera untuk memulai analisis.</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     with tab_camera:
         if st.checkbox("📸 Aktifkan Kamera"):
@@ -334,6 +352,8 @@ def render_input_section():
             if camera_image:
                 image = Image.open(camera_image)
                 render_twin_frames(image, "Camera Capture")
+        else:
+            st.info("Klik checkbox di atas untuk mengaktifkan kamera.")
 
 
 def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Image.Image:
@@ -357,7 +377,9 @@ def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Im
 
 def render_sample_section():
     """Render sample images section - Standard Streamlit."""
+    st.markdown("---")
     st.markdown("### 🧪 Coba Contoh Gambar")
+    st.caption("Tidak punya gambar? Klik salah satu tombol di bawah untuk mencoba demo:")
     
     samples_dir = Path("samples")
     if not samples_dir.exists():
@@ -381,6 +403,15 @@ def render_sample_section():
                     render_twin_frames(img, f"Sample: {label}")
 
 
+def render_footer():
+    """Render footer."""
+    st.markdown("""
+    <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #eee; color: #888;">
+        <p>Made with ❤️ by CogniDesk Team | © 2024</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 def main():
     """Main app entry point."""
     inject_custom_css()
@@ -388,6 +419,7 @@ def main():
     render_main_header()
     render_input_section()
     render_sample_section()
+    render_footer()
 
 
 if __name__ == "__main__":
