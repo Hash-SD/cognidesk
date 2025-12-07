@@ -357,39 +357,6 @@ def inject_custom_css():
             .block-container {
                 padding: 1rem;
             }
-            
-            .twin-frames {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-cards-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .input-card {
-                max-width: 100%;
-                padding: 1.5rem 2rem;
-            }
-            
-            .frame {
-                min-height: auto;
-            }
-            
-            [data-testid="stSidebar"] {
-                min-width: 100% !important;
-            }
-        }
-        
-        /* ============ RESPONSIVE - TABLET ============ */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .block-container {
-                padding: 1.5rem;
-            }
-            
-            .input-card {
-                padding: 1.5rem 2rem;
-            }
         }
     </style>
     """, unsafe_allow_html=True)
