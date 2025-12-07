@@ -60,9 +60,10 @@ Thumbs.db
 *.log
 logs/
 
-# Dataset (too large for git)
+# Dataset (too large for git, but keep samples)
 dataset_alat_tulis/
 dataset_alat_tulis.zip
+!samples/
 
 # Kiro specs (development only)
 .kiro/
