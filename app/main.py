@@ -12,8 +12,8 @@ from app.components.predictor import PredictionEngine
 
 # Page configuration - HARUS di baris pertama
 st.set_page_config(
-    page_title="CogniDesk - AI Stationery Detector",
-    page_icon="🧠",
+    page_title=f"{settings.APP_TITLE} - AI Stationery Detector",
+    page_icon=settings.APP_ICON,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -189,10 +189,10 @@ def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
         # Judul Sidebar dengan layout vertikal (Emoji di atas, Teks di bawah)
-        st.markdown("""
+        st.markdown(f"""
         <div style='text-align: center; padding-bottom: 1rem;'>
-            <div style='font-size: 5rem; line-height: 1.2;'>🧠</div>
-            <h1 style='font-size: 32px; margin: 0; padding: 0;'>CogniDesk</h1>
+            <div style='font-size: 5rem; line-height: 1.2;'>{settings.APP_ICON}</div>
+            <h1 style='font-size: 32px; margin: 0; padding: 0;'>{settings.APP_TITLE}</h1>
             <p style='font-size: 0.9rem; color: #666; margin-top: 0.5rem;'>🚀 AI Stationery Detector</p>
         </div>
         """, unsafe_allow_html=True)
@@ -230,15 +230,15 @@ def render_sidebar():
         st.divider()
         
         with st.expander("ℹ️ Tentang Aplikasi"):
-            st.markdown("""
-            **CogniDesk** menggunakan AI untuk mengenali alat tulis.
+            st.markdown(f"""
+            **{settings.APP_TITLE}** menggunakan AI untuk mengenali alat tulis.
             
             **Didukung:**
             - 🧹 Eraser
             - 📄 Kertas
             - ✏️ Pensil
             
-            **Versi:** 1.0.0
+            **Versi:** {settings.APP_VERSION}
             """)
 
 
@@ -413,10 +413,10 @@ def render_sample_section():
 
 def render_footer():
     """Render footer."""
-    st.markdown("""
+    st.markdown(f"""
     <div style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #eee; color: #888;">
-        <p>🤖 Powered by CogniDesk AI</p>
-        <p>Made with ❤️ by CogniDesk Team | © 2025</p>
+        <p>🤖 Powered by {settings.APP_TITLE} AI</p>
+        <p>Made with ❤️ by {settings.APP_TITLE} Team | © 2025</p>
     </div>
     """, unsafe_allow_html=True)
 

@@ -42,6 +42,10 @@ class Settings:
     APP_VERSION: str = "1.0.0"
     APP_DESCRIPTION: str = "Klasifikasi gambar Alat Tulis Kantor menggunakan CNN"
     
+    # Streamlit Configuration
+    APP_TITLE: str = "CogniDesk"
+    APP_ICON: str = "🧠"
+    
     # Model Configuration
     MODEL_PATH: Path = field(default_factory=lambda: Path("models/best_model.keras"))
     INPUT_SIZE: Tuple[int, int] = (300, 300)  # Sesuai notebook
