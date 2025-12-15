@@ -6,10 +6,7 @@
 
 ## 📸 Demo Preview
 
-> *Tampilan Dashboard*
-> *Hasil Prediksi*
-
-*(Ganti placeholder ini dengan screenshot asli dari aplikasi)*
+![Dashboard CogniDesk](https://github.com/Hash-SD/cnn-custom-datagambar/blob/main/docs/front.jpeg)
 
 ---
 
