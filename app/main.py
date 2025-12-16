@@ -248,6 +248,31 @@ def get_prediction_engine():
     return PredictionEngine()
 
 
+def init_session_state():
+    """Initialize session state variables."""
+    if "current_image" not in st.session_state:
+        st.session_state.current_image = None
+    if "image_source" not in st.session_state:
+        st.session_state.image_source = None
+    if "sample_clicked" not in st.session_state:
+        st.session_state.sample_clicked = None
+
+
+def set_sample_image(sample_key: str, filepath: Path, label: str):
+    """Set sample image to session state and trigger rerun."""
+    img = Image.open(filepath)
+    st.session_state.current_image = img
+    st.session_state.image_source = f"Sample: {label}"
+    st.session_state.sample_clicked = sample_key
+
+
+def clear_current_image():
+    """Clear current image from session state."""
+    st.session_state.current_image = None
+    st.session_state.image_source = None
+    st.session_state.sample_clicked = None
+
+
 def render_main_header():
     """Render main content header - Standard Streamlit."""
     # Judul Main Header dengan ukuran yang sama dengan Sidebar (32px)
@@ -329,6 +354,19 @@ def render_twin_frames(image: Image.Image, source_name: str):
 def render_input_section():
     """Render input section - Standard Streamlit."""
     
+    # Check if sample was clicked - prioritize sample image
+    if st.session_state.sample_clicked and st.session_state.current_image:
+        render_twin_frames(
+            st.session_state.current_image, 
+            st.session_state.image_source
+        )
+        
+        # Button to clear and go back
+        if st.button("🔄 Analisis Gambar Lain", use_container_width=True):
+            clear_current_image()
+            st.rerun()
+        return
+    
     # Tabs for Upload vs Camera
     tab_upload, tab_camera = st.tabs(["📂 Upload Gambar", "📸 Ambil Foto"])
     
@@ -336,12 +374,16 @@ def render_input_section():
         uploaded_file = st.file_uploader(
             "Pilih gambar",
             type=["jpg", "jpeg", "png"],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="file_uploader"
         )
         
         if uploaded_file:
             try:
                 image = Image.open(uploaded_file)
+                # Store in session state
+                st.session_state.current_image = image
+                st.session_state.image_source = uploaded_file.name
                 render_twin_frames(image, uploaded_file.name)
             except Exception:
                 st.error("❌ Format file tidak valid.")
@@ -359,6 +401,9 @@ def render_input_section():
             camera_image = st.camera_input("Ambil foto", label_visibility="collapsed")
             if camera_image:
                 image = Image.open(camera_image)
+                # Store in session state
+                st.session_state.current_image = image
+                st.session_state.image_source = "Camera Capture"
                 render_twin_frames(image, "Camera Capture")
         else:
             st.info("Klik checkbox di atas untuk mengaktifkan kamera.")
@@ -385,6 +430,10 @@ def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Im
 
 def render_sample_section():
     """Render sample images section - Standard Streamlit."""
+    # Don't show sample section if sample is already being displayed
+    if st.session_state.sample_clicked:
+        return
+        
     st.markdown("---")
     st.markdown("### 🧪 Coba Contoh Gambar")
     st.caption("Tidak punya gambar? Klik salah satu tombol di bawah untuk mencoba demo:")
@@ -400,15 +449,14 @@ def render_sample_section():
         "pensil": ("pensil_sample.jpg", "Pencil")
     }
     
-    SAMPLE_SIZE = (200, 150)
-    
     for col, (key, (filename, label)) in zip([col1, col2, col3], sample_files.items()):
         filepath = samples_dir / filename
         if filepath.exists():
             with col:
                 if st.button(f"🔍 {label}", key=f"try_{key}", use_container_width=True):
-                    img = Image.open(filepath)
-                    render_twin_frames(img, f"Sample: {label}")
+                    # Clear any existing state and set new sample
+                    set_sample_image(key, filepath, label)
+                    st.rerun()
 
 
 def render_footer():
@@ -423,6 +471,9 @@ def render_footer():
 
 def main():
     """Main app entry point."""
+    # Initialize session state first
+    init_session_state()
+    
     inject_custom_css()
     render_sidebar()
     render_main_header()
